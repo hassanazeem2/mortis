@@ -20,6 +20,9 @@ def main_menu(config: dict, console: Console):
         console.print()
         console.print("[bold red]  BURIAL[/bold red] [dim red]— remediate & export[/dim red]")
         console.print("[bold red]  [6][/bold red] [red]Export Report[/red]")
+        console.print()
+        console.print("[bold red]  DEMO[/bold red] [dim red]— try without credentials[/dim red]")
+        console.print("[bold red]  [7][/bold red] [red]Run Demo Investigation[/red]")
         console.print("[bold red]  [0][/bold red] [dim red]Exit[/dim red]")
         console.print()
 
@@ -49,6 +52,10 @@ def main_menu(config: dict, console: Console):
         elif choice == "6":
             from reports.exporter import export_menu
             export_menu(config, console)
+
+        elif choice == "7":
+            from demo.runner import run_demo
+            run_demo(console)
 
         elif choice == "0":
             console.print("[dim red]  Shutting down MORTIS...[/dim red]")

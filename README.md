@@ -167,6 +167,7 @@ pip install -r requirements.txt
 
 python mortis.py --setup    # one-time config
 python mortis.py              # interactive menu
+python mortis.py --demo       # try it instantly — no credentials needed
 ```
 
 ### One-liners
@@ -261,7 +262,7 @@ graph TD
 
 ## Roadmap (v2)
 
-- [ ] `--demo` mode — try it without AWS/GitHub credentials
+- [x] `--demo` mode — try it without AWS/GitHub credentials
 - [ ] SARIF export for GitHub Advanced Security
 - [ ] Live CloudTrail watch mode
 - [ ] Org-wide repo hygiene dashboard

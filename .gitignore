@@ -1,0 +1,27 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Secrets & local config (stored in ~/.mortis/ at runtime)
+.env
+.env.*
+config.json
+*.pem
+*.key
+
+# Exported reports
+mortis_report_*.json
+mortis_report_*.md
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

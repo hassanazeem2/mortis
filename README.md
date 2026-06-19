@@ -269,6 +269,4 @@ graph TD
 
 I'm **Hassan Azeem**, learning cloud and cyber security by building real tools. MORTIS started as a way to understand how credential leaks actually play out in the cloud — not just in theory, but by reading real logs and tracing real (test) incidents.
 
-If you're learning security too, clone it, break it, improve it. That's the point.
-
 **[hazeem.org](https://hazeem.org)** · **[github.com/hassanazeem2](https://github.com/hassanazeem2)**

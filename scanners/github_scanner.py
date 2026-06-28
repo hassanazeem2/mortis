@@ -225,6 +225,10 @@ def scan_repository(repo_name: str, config: dict, console: Console, silent: bool
         if not silent:
             display_findings(findings, files_scanned, commit_count, console, config)
 
+        if findings:
+            from core.case_store import add_findings
+            add_findings(findings, source="github")
+
         return findings
 
     except GithubException as e:

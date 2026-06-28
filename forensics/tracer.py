@@ -63,6 +63,10 @@ def inspect_key(key_id: str, config: dict, console: Console, days: int = 30, exp
     from scanners.cloudtrail_scanner import analyze_for_key
     events = analyze_for_key(key_id, config, console, days)
 
+    if config:
+        from forensics.key_health import check_key_health
+        check_key_health(key_id, config, console)
+
     if not events:
         console.print("[red]  No CloudTrail events found for this key in the specified window.[/red]")
         console.print("[dim red]  This may mean: key was never used, CloudTrail not enabled, or key is older than the window.[/dim red]")
@@ -246,3 +250,11 @@ def build_forensic_report(key_id: str, events: list, console: Console, days: int
         file_path=ctx.get("file"),
         has_critical_actions=has_critical,
     )
+
+    from core.case_store import add_autopsy_summary
+    add_autopsy_summary({
+        "key_id": key_id,
+        "total_events": len(events),
+        "suspicious_events": len(suspicious_events),
+        "source_ips": list(source_ips)[:10],
+    })

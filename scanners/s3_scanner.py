@@ -25,6 +25,29 @@ def get_client(config: dict):
         region_name=config["aws"]["region"],
     )
 
+def scan_all_buckets(config: dict, console: Console, silent: bool = False) -> list:
+    """Scan every bucket in the account. Used by full forensic report."""
+    all_findings = []
+    try:
+        s3 = get_client(config)
+        buckets = s3.list_buckets().get("Buckets", [])
+        if not silent:
+            console.print(f"[red]  ▸ Scanning {len(buckets)} S3 bucket(s)...[/red]")
+        for bucket in buckets:
+            findings = scan_bucket(bucket["Name"], config, console, silent=True)
+            for f in findings:
+                f["severity"] = "CRITICAL" if f["type"] in ("AWS Access Key", "AWS Secret Key", "Private Key") else "HIGH"
+                f["source"] = "s3"
+            all_findings.extend(findings)
+        if not silent:
+            console.print(f"[red]  ✓ S3: {len(all_findings)} finding(s)[/red]")
+            console.print()
+    except Exception as e:
+        if not silent:
+            console.print(f"[red]  ✗ S3 scan failed: {str(e)[:60]}[/red]")
+    return all_findings
+
+
 def scan_menu(config: dict, console: Console):
     console.print("[red]━━━ S3 BUCKET SCANNER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/red]")
     console.print()
@@ -62,10 +85,12 @@ def scan_menu(config: dict, console: Console):
             for bucket in buckets:
                 findings = scan_bucket(bucket["Name"], config, console, silent=True)
                 all_findings.extend(findings)
-            display_summary(all_findings, console)
+            display_summary(all_findings, console, config)
         elif choice.isdigit() and 1 <= int(choice) <= len(buckets):
             bucket_name = buckets[int(choice) - 1]["Name"]
             scan_bucket(bucket_name, config, console)
+        else:
+            console.print("[red]  ✗ Invalid selection.[/red]")
 
     except NoCredentialsError:
         console.print("[red]  ✗ Invalid AWS credentials. Run mortis --setup[/red]")
@@ -133,7 +158,11 @@ def scan_bucket(bucket_name: str, config: dict, console: Console, silent: bool =
                         pass
 
         if not silent:
-            display_findings(findings, files_scanned, bucket_name, console)
+            display_findings(findings, files_scanned, bucket_name, console, config)
+
+        if findings:
+            from core.case_store import add_findings
+            add_findings(findings, source="s3")
 
         return findings
 
@@ -155,7 +184,7 @@ def check_public_access(s3, bucket_name: str, console: Console, silent: bool) ->
     except:
         return "UNKNOWN"
 
-def display_findings(findings: list, files_scanned: int, bucket_name: str, console: Console):
+def display_findings(findings: list, files_scanned: int, bucket_name: str, console: Console, config: dict | None = None):
     console.print()
     console.print(f"[red]  ✓ Scanned {files_scanned} files in {bucket_name}[/red]")
     console.print()
@@ -188,7 +217,14 @@ def display_findings(findings: list, files_scanned: int, bucket_name: str, conso
     console.print(table)
     console.print()
 
-def display_summary(findings: list, console: Console):
+    if config and findings:
+        from rich.prompt import Confirm
+        from forensics.tracer import analyze_findings
+        if Confirm.ask("[red]  Chain to autopsy on AWS keys found?[/red]", default=True):
+            analyze_findings(findings, config, console)
+
+
+def display_summary(findings: list, console: Console, config: dict | None = None):
     console.print(f"[bold red]  ⚠ TOTAL: {len(findings)} secret(s) across all buckets[/bold red]")
     console.print()
-    display_findings(findings, 0, "all buckets", console)
+    display_findings(findings, 0, "all buckets", console, config)

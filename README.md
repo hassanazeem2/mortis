@@ -159,8 +159,8 @@ pie title Secret types scanned
 ## Quick start
 
 ```bash
-git clone https://github.com/hassanazeem2/mortis.git
-cd mortis
+git clone https://github.com/hassanazeem2/mortis1.git
+cd mortis1
 
 python3 -m venv .venv
 source .venv/bin/activate
@@ -169,6 +169,7 @@ pip install -r requirements.txt
 python mortis.py --setup    # one-time config
 python mortis.py              # interactive menu
 python mortis.py --demo       # try it instantly — no credentials needed
+python mortis.py --version    # show version
 ```
 
 ### One-liners
@@ -198,8 +199,9 @@ Create an IAM user with these permissions (read-only, no write access):
       "s3:ListBucket",
       "s3:GetObject",
       "s3:GetBucketAcl",
-      "iam:ListUsers",
-      "iam:ListRoles"
+        "iam:ListUsers",
+        "iam:ListRoles",
+        "iam:GetAccessKeyLastUsed"
     ],
     "Resource": "*"
   }]
@@ -261,10 +263,24 @@ graph TD
 
 ---
 
+## Pre-commit hook
+
+Block AWS keys before they reach GitHub:
+
+```bash
+./scripts/install-hook.sh
+```
+
+---
+
 ## Roadmap (v2)
 
 - [x] `--demo` mode — try it without AWS/GitHub credentials
-- [ ] SARIF export for GitHub Advanced Security
+- [x] SARIF export for GitHub Advanced Security
+- [x] HTML report export
+- [x] Scan history / case file persistence (`~/.mortis/cases/`)
+- [x] Key health check (IAM `GetAccessKeyLastUsed`)
+- [x] Pre-commit hook
 - [ ] Live CloudTrail watch mode
 - [ ] Org-wide repo hygiene dashboard
 

@@ -1,0 +1,14 @@
+#!/bin/sh
+# MORTIS pre-commit hook — blocks AWS access keys from being committed.
+# Install: ./scripts/install-hook.sh
+
+PATTERN='(AKIA|ABIA|ACCA|ASIA)[A-Z0-9]{16}'
+
+if git diff --cached --name-only | xargs grep -l -E "$PATTERN" 2>/dev/null; then
+  echo ""
+  echo "MORTIS: Blocked commit — possible AWS access key detected."
+  echo "Remove the secret before committing, or use: git commit --no-verify"
+  exit 1
+fi
+
+exit 0

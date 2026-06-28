@@ -30,6 +30,9 @@ def run_demo(console: Console):
     time.sleep(0.4)
     _run_autopsy(console)
 
+    from core.case_store import add_findings
+    add_findings(DEMO_FINDINGS, source="demo")
+
     console.print(Panel(
         "[bold red]Demo complete.[/bold red]\n\n"
         "[red]Ready for a real scan?[/red]\n"
